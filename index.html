@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de LECAPS y BONCAPS — Carlos Sauza (Mat. 1823)</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --accent: #2b6cb0;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1250px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .advisor-info {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* PARAMETROS SUPERIORES */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #475569;
+        }
+
+        .input-group input, .input-group select {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent);
+        }
+
+        .mep-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-refresh {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-refresh:hover {
+            background-color: var(--primary);
+        }
+
+        .mep-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #137333;
+            background: #E6F4EA;
+            border: 1px solid #CEEAD6;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 6px;
+            cursor: pointer;
+        }
+
+        .mep-badge.loading {
+            color: #D97706;
+            background: #FEF3C7;
+            border-color: #FDE68A;
+        }
+
+        .status-text {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        /* TABLA PRINCIPAL */
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 8px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-align: right;
+        }
+
+        th:nth-child(1), th:nth-child(4), th:nth-child(5), th:nth-child(6) {
+            text-align: center;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: right;
+        }
+
+        td:nth-child(1) {
+            font-weight: bold;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        td:nth-child(4), td:nth-child(5), td:nth-child(6) {
+            text-align: center;
+        }
+
+        tr:nth-child(even) { background-color: #f8fafc; }
+        tr:hover { background-color: #f1f5f9; }
+
+        .editable-input {
+            width: 75px;
+            text-align: right;
+            padding: 4px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .editable-input.overridden {
+            background-color: #fff7ed;
+            border-color: #fb923c;
+        }
+
+        /* BANNER Y DISCLAIMER */
+        .cta-banner {
+            background-color: #0f172a;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .cta-banner a {
+            color: #38bdf8;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-left: 5px;
+        }
+
+        .disclaimer {
+            margin-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .disclaimer p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Calculadora de LECAPS y BONCAPS</h1>
+        <div class="advisor-info">Asesor Financiero: Carlos Sauza — Mat. CNV N° 1823</div>
+    </div>
+
+    <!-- PANEL DE PARÁMETROS -->
+    <div class="controls-grid">
+        <div class="input-group">
+            <label for="fechaLiq">Fecha Liquidación</label>
+            <input type="date" id="fechaLiq">
+            <span class="status-text" id="fechaStatus">Calculando próximo día hábil...</span>
+        </div>
+        <div class="input-group">
+            <label for="mepVal">Dólar MEP (U$S) <span id="mepBadge" class="mep-badge loading" onclick="obtenerDolarMep()" title="Clic para recargar">Cargando...</span></label>
+            <input type="number" id="mepVal" step="0.01" value="1420.00">
+            <span class="status-text" id="mepStatus">Conectando con DolarApi...</span>
+        </div>
+        <div class="input-group">
+            <label for="arancelLecap">Arancel LECAP (%)</label>
+            <input type="number" id="arancelLecap" step="0.01" value="0.20">
+        </div>
+        <div class="input-group">
+            <label for="arancelBoncap">Arancel BONCAP (%)</label>
+            <input type="number" id="arancelBoncap" step="0.01" value="0.50">
+        </div>
+        <div class="input-group">
+            <label for="derechosLecap">Derechos/Imp. LECAP (%)</label>
+            <input type="number" id="derechosLecap" step="0.0001" value="0.0010">
+            <label for="derechosBoncap" style="margin-top:6px;">Derechos/Imp. BONCAP (%)</label>
+            <input type="number" id="derechosBoncap" step="0.0001" value="0.0025">
+        </div>
+    </div>
+
+    <!-- TABLA DE BONOS -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Especie</th>
+                    <th>Precio 100 VN</th>
+                    <th>Precio + Gas.</th>
+                    <th>F. Liq</th>
+                    <th>Emisión</th>
+                    <th>Vencimiento</th>
+                    <th>Días Vto</th>
+                    <th>Meses</th>
+                    <th>Rend. Dto</th>
+                    <th>A Finish</th>
+                    <th>MEP B.E</th>
+                    <th>TNA</th>
+                    <th>TEM</th>
+                    <th>TEA</th>
+                    <th>TEM LICI</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCuerpo"></tbody>
+        </table>
+    </div>
+
+    <!-- FOOTER DE APERTURA CON REFERIDO DIRECTO BALANZ -->
+    <div class="cta-banner">
+        🔒 Asesor: <strong>Carlos Sauza</strong> (Mat. CNV N° 1823) | 
+        <a href="https://www.balanz.com/abrir-cuenta-2.aspx?reference=carlos.sauza.asesor@gmail.com" target="_blank">Apretá aquí para abrir una cuenta en Balanz y recibir mi asesoramiento</a>
+    </div>
+
+    <div class="disclaimer">
+        <p>⚠️ <strong>Disclaimer:</strong> Este dashboard es exclusivamente para fines educativos e informativos. No constituye asesoramiento financiero ni recomendación de inversión. Los datos pueden contener errores. Consulta a un asesor financiero certificado antes de tomar decisiones de inversión. Invertir conlleva riesgos, incluyendo la posible pérdida del capital invertido.</p>
+        <p>🔒 Uso exclusivo para clientes del asesor Carlos Sauza (Mat. CNV N° 1823).</p>
+    </div>
+</div>
+
+<script>
+    // Títulos vigentes (no vencidos). "tnm" = Tasa Nominal Mensual de capitalización.
+    // El "A Finish" (valor técnico al vencimiento) se calcula en vivo a partir de la TNM,
+    // así no queda un número fijo desactualizado.
+    const titulosBase = [
+        { ticker: 'S31G6', tipo: 'LECAP',  precio: 126.236, emision: '2025-11-10', vto: '2026-08-31', tnm: 2.50 },
+        { ticker: 'S15S6', tipo: 'LECAP',  precio: 105.350, emision: '2026-05-29', vto: '2026-09-15', tnm: 1.99 },
+        { ticker: 'S30S6', tipo: 'LECAP',  precio: 114.280, emision: '2026-03-16', vto: '2026-09-30', tnm: 2.53 },
+        { ticker: 'S16O6', tipo: 'LECAP',  precio: 101.325, emision: '2026-07-31', vto: '2026-10-16', tnm: 2.05 },
+        { ticker: 'S30O6', tipo: 'LECAP',  precio: 128.814, emision: '2025-10-31', vto: '2026-10-30', tnm: 2.55 },
+        { ticker: 'S13N6', tipo: 'LECAP',  precio: 103.340, emision: '2026-06-30', vto: '2026-11-13', tnm: 2.10 },
+        { ticker: 'S30N6', tipo: 'LECAP',  precio: 120.980, emision: '2025-12-15', vto: '2026-11-30', tnm: 2.30 },
+        { ticker: 'T15E7', tipo: 'BONCAP', precio: 145.100, emision: '2025-01-31', vto: '2027-01-15', tnm: 2.05 },
+        { ticker: 'T30A7', tipo: 'BONCAP', precio: 131.540, emision: '2025-10-31', vto: '2027-04-30', tnm: 2.55 },
+        { ticker: 'T31Y7', tipo: 'BONCAP', precio: 124.100, emision: '2025-12-15', vto: '2027-05-31', tnm: 2.40 },
+        { ticker: 'T30J7', tipo: 'BONCAP', precio: 125.800, emision: '2026-01-16', vto: '2027-06-30', tnm: 2.58 }
+    ];
+    // Guarda, por índice de título, un valor de "Precio + Gas." editado a mano (pisa el cálculo automático)
+    const precioGasOverrides = {};
+
+    function fmtFecha(fechaStr) {
+        const parts = fechaStr.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    // Equivalente a la función DIAS360 de Excel (método US/NASD, igual al usado en la planilla original)
+    function dias360(d1, d2) {
+        let day1 = d1.getDate();
+        const month1 = d1.getMonth() + 1;
+        const year1 = d1.getFullYear();
+        let day2 = d2.getDate();
+        const month2 = d2.getMonth() + 1;
+        const year2 = d2.getFullYear();
+
+        if (day1 === 31) day1 = 30;
+        if (day2 === 31 && day1 === 30) day2 = 30;
+
+        return (year2 - year1) * 360 + (month2 - month1) * 30 + (day2 - day1);
+    }
+
+    async function obtenerDolarMep() {
+        const status = document.getElementById('mepStatus');
+        const badge = document.getElementById('mepBadge');
+        status.textContent = 'Buscando cotización...';
+        badge.textContent = 'Cargando...';
+        badge.className = 'mep-badge loading';
+
+        // Fuente primaria: Dolarito
+        try {
+            const res = await fetch('https://api.dolarito.ar/pages/dolar/mep');
+            if (res.ok) {
+                const data = await res.json();
+                const val = data.venta || data.value || data.price;
+                if (val) {
+                    document.getElementById('mepVal').value = Number(val).toFixed(2);
+                    status.textContent = `Actualizado (Dolarito) — venta ${Number(val).toFixed(2)}`;
+                    badge.textContent = 'Dolarito ✓';
+                    badge.className = 'mep-badge';
+                    renderTabla();
+                    return;
+                }
+            }
+            throw new Error('Fallback requerido');
+        } catch (err) {
+            console.log('Dolarito no disponible, probando DolarApi:', err);
+        }
+
+        // Fuente secundaria (fallback): DolarApi
+        try {
+            const res = await fetch('https://dolarapi.com/v1/dolares/bolsa');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.venta) {
+                    document.getElementById('mepVal').value = Number(data.venta).toFixed(2);
+                    status.textContent = `Actualizado (DolarApi) — venta ${Number(data.venta).toFixed(2)}`;
+                    badge.textContent = 'DolarApi ✓';
+                    badge.className = 'mep-badge';
+                    renderTabla();
+                    return;
+                }
+            }
+            throw new Error('Manual requerido');
+        } catch (err) {
+            status.textContent = 'Sin conexión con las APIs, usando valor manual.';
+            badge.textContent = 'Manual';
+            badge.className = 'mep-badge loading';
+            console.log('No se pudo actualizar el dólar MEP automáticamente:', err);
+        }
+    }
+
+    // --- Cálculo del próximo día hábil en Argentina (fines de semana + feriados) ---
+
+    // Respaldo fijo por si la API de feriados no responde (ej. bloqueo CORS al abrir el archivo local).
+    // Fuente: Jefatura de Gabinete de Ministros / Ley 27.399 (calendario oficial 2026).
+    const FERIADOS_ARGENTINA_2026 = [
+        '2026-01-01', // Año Nuevo
+        '2026-02-16', // Carnaval
+        '2026-02-17', // Carnaval
+        '2026-03-23', // Día no laborable turístico (puente)
+        '2026-03-24', // Día Nacional de la Memoria por la Verdad y la Justicia
+        '2026-04-02', // Día del Veterano y los Caídos en la Guerra de Malvinas
+        '2026-04-03', // Viernes Santo
+        '2026-05-01', // Día del Trabajador
+        '2026-05-25', // Día de la Revolución de Mayo
+        '2026-06-15', // Paso a la Inmortalidad del Gral. Güemes (trasladado)
+        '2026-06-20', // Paso a la Inmortalidad del Gral. Belgrano
+        '2026-07-09', // Día de la Independencia
+        '2026-07-10', // Día no laborable turístico (puente)
+        '2026-08-17', // Paso a la Inmortalidad del Gral. San Martín
+        '2026-10-12', // Día del Respeto a la Diversidad Cultural
+        '2026-11-23', // Día de la Soberanía Nacional (trasladado)
+        '2026-12-07', // Día no laborable turístico (puente)
+        '2026-12-08', // Inmaculada Concepción de María
+        '2026-12-25'  // Navidad
+    ];
+
+    async function obtenerFeriados(anio) {
+        try {
+            const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${anio}`);
+            if (res.ok) {
+                const data = await res.json();
+                return data.map(f => f.fecha);
+            }
+        } catch (err) {
+            console.log(`No se pudieron obtener los feriados de ${anio} desde la API, usando respaldo local si existe:`, err);
+        }
+        return anio === 2026 ? FERIADOS_ARGENTINA_2026 : [];
+    }
+
+    function toISODate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    async function calcularProximoDiaHabil() {
+        const candidato = new Date();
+        candidato.setHours(0, 0, 0, 0);
+        candidato.setDate(candidato.getDate() + 1); // arrancamos revisando desde mañana
+
+        const anios = new Set([candidato.getFullYear(), candidato.getFullYear() + 1]);
+        let feriados = [];
+        for (const anio of anios) {
+            feriados = feriados.concat(await obtenerFeriados(anio));
+        }
+        const feriadosSet = new Set(feriados);
+
+        // Límite de seguridad para no quedar en loop infinito si la API falla
+        for (let i = 0; i < 30; i++) {
+            const diaSemana = candidato.getDay(); // 0 = domingo, 6 = sábado
+            const fechaStr = toISODate(candidato);
+            if (diaSemana !== 0 && diaSemana !== 6 && !feriadosSet.has(fechaStr)) {
+                return fechaStr;
+            }
+            candidato.setDate(candidato.getDate() + 1);
+        }
+        return toISODate(candidato);
+    }
+
+    function renderTabla() {
+        const fechaLiqInput = document.getElementById('fechaLiq').value;
+        const fechaLiqVal = new Date(fechaLiqInput + 'T00:00:00');
+        const mep = parseFloat(document.getElementById('mepVal').value) || 1;
+        const arancelLecap = parseFloat(document.getElementById('arancelLecap').value) / 100 || 0;
+        const arancelBoncap = parseFloat(document.getElementById('arancelBoncap').value) / 100 || 0;
+        const derechosLecap = parseFloat(document.getElementById('derechosLecap').value) / 100 || 0;
+        const derechosBoncap = parseFloat(document.getElementById('derechosBoncap').value) / 100 || 0;
+
+        const tbody = document.getElementById('tablaCuerpo');
+        tbody.innerHTML = '';
+
+        titulosBase.forEach((t, idx) => {
+            const emisionDate = new Date(t.emision + 'T00:00:00');
+            const vto = new Date(t.vto + 'T00:00:00');
+            const diffTime = vto - fechaLiqVal;
+            const diasVto = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+            const meses = (dias360(fechaLiqVal, vto) / 30).toFixed(2);
+
+            // A Finish (valor técnico al vencimiento por 100 VN) calculado en vivo:
+            // capitalización mensual a la TNM desde la emisión hasta el vencimiento,
+            // usando DIAS360 (30/360, igual que la planilla original).
+            const mesesCapitalizacion = dias360(emisionDate, vto) / 30;
+            const aFinish = 100 * Math.pow(1 + t.tnm / 100, mesesCapitalizacion);
+
+            const arancelAplicable = t.tipo === 'LECAP' ? arancelLecap : arancelBoncap;
+            const derechos = t.tipo === 'LECAP' ? derechosLecap : derechosBoncap;
+
+            const precioMasGas = precioGasOverrides[idx] !== undefined
+                ? precioGasOverrides[idx]
+                : t.precio * (1 + arancelAplicable + derechos);
+            const rendDto = ((aFinish / precioMasGas) - 1);
+            const mepBE = mep * (1 + rendDto);
+            const tna = (rendDto * (365 / diasVto));
+            const tem = (Math.pow(1 + rendDto, 30 / diasVto) - 1);
+            const tea = (Math.pow(1 + rendDto, 365 / diasVto) - 1);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${t.ticker}</td>
+                <td><input type="number" class="editable-input" value="${t.precio.toFixed(3)}" step="0.05" onchange="actualizarPrecio(${idx}, this.value)"></td>
+                <td><input type="number" class="editable-input${precioGasOverrides[idx] !== undefined ? ' overridden' : ''}" value="${precioMasGas.toFixed(3)}" step="0.05" onchange="actualizarPrecioMasGas(${idx}, this.value)" title="${precioGasOverrides[idx] !== undefined ? 'Valor editado a mano' : 'Calculado automáticamente'}"></td>
+                <td>${fmtFecha(fechaLiqInput)}</td>
+                <td>${fmtFecha(t.emision)}</td>
+                <td>${fmtFecha(t.vto)}</td>
+                <td>${diasVto}</td>
+                <td>${meses}</td>
+                <td>${(rendDto * 100).toFixed(2)}%</td>
+                <td>${aFinish.toFixed(3)}</td>
+                <td style="font-weight:600; color:#2563eb;">${mepBE.toFixed(2)}</td>
+                <td>${(tna * 100).toFixed(2)}%</td>
+                <td>${(tem * 100).toFixed(2)}%</td>
+                <td style="font-weight:600; color:#16a34a;">${(tea * 100).toFixed(2)}%</td>
+                <td>${t.tnm.toFixed(2)}%</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function actualizarPrecio(idx, val) {
+        titulosBase[idx].precio = parseFloat(val) || 0;
+        delete precioGasOverrides[idx]; // al editar el precio base, vuelve a calcularse Precio+Gas automático
+        renderTabla();
+    }
+
+    function actualizarPrecioMasGas(idx, val) {
+        precioGasOverrides[idx] = parseFloat(val) || 0;
+        renderTabla();
+    }
+
+    // Listeners
+    ['fechaLiq', 'mepVal', 'arancelLecap', 'arancelBoncap', 'derechosLecap', 'derechosBoncap'].forEach(id => {
+        document.getElementById(id).addEventListener('input', renderTabla);
+    });
+
+    // Inicio
+    async function inicializar() {
+        const fechaStatus = document.getElementById('fechaStatus');
+        const fechaDefault = await calcularProximoDiaHabil();
+        document.getElementById('fechaLiq').value = fechaDefault;
+        fechaStatus.textContent = `Próximo día hábil (podés modificarla)`;
+
+        await obtenerDolarMep();
+        renderTabla();
+    }
+
+    inicializar();
+</script>
+
+</body>
+</html>
