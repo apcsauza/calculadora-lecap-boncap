@@ -200,6 +200,59 @@
             border-color: #fb923c;
         }
 
+        /* GRÁFICO DE CURVA */
+        .chart-section {
+            margin-top: 22px;
+            background: #3b3b3b;
+            border-radius: 10px;
+            padding: 12px 14px 16px;
+        }
+
+        .chart-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .chart-toolbar label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+
+        .chart-toolbar select {
+            padding: 5px 8px;
+            border: 1px solid #5a5a5a;
+            border-radius: 6px;
+            background: #2f2f2f;
+            color: #f1f5f9;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .btn-png {
+            margin-left: auto;
+            background: #4a5568;
+            color: #f8fafc;
+            border: 1px solid #5a5a5a;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-png:hover { background: var(--accent); }
+
+        #curvaSvg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
         /* BANNER Y DISCLAIMER */
         .cta-banner {
             background-color: #0f172a;
@@ -295,6 +348,20 @@
         </table>
     </div>
 
+    <!-- GRÁFICO: CURVA DE TASA FIJA CON TENDENCIA LOGARÍTMICA -->
+    <div class="chart-section">
+        <div class="chart-toolbar">
+            <label for="metricaGrafico">Curva</label>
+            <select id="metricaGrafico">
+                <option value="tem">TEM</option>
+                <option value="tea">TEA</option>
+                <option value="tna">TNA</option>
+            </select>
+            <button class="btn-png" onclick="descargarGrafico()">Descargar imagen</button>
+        </div>
+        <svg id="curvaSvg" xmlns="http://www.w3.org/2000/svg" width="1160" height="620" viewBox="0 0 1160 620"></svg>
+    </div>
+
     <!-- FOOTER DE APERTURA CON REFERIDO DIRECTO BALANZ -->
     <div class="cta-banner">
         🔒 Asesor: <strong>Carlos Sauza</strong> (Mat. CNV N° 1823) | 
@@ -312,17 +379,18 @@
     // El "A Finish" (valor técnico al vencimiento) se calcula en vivo a partir de la TNM,
     // así no queda un número fijo desactualizado.
     const titulosBase = [
-        { ticker: 'S31G6', tipo: 'LECAP',  precio: 126.236, emision: '2025-11-10', vto: '2026-08-31', tnm: 2.50 },
-        { ticker: 'S15S6', tipo: 'LECAP',  precio: 105.350, emision: '2026-05-29', vto: '2026-09-15', tnm: 1.99 },
-        { ticker: 'S30S6', tipo: 'LECAP',  precio: 114.280, emision: '2026-03-16', vto: '2026-09-30', tnm: 2.53 },
-        { ticker: 'S16O6', tipo: 'LECAP',  precio: 101.325, emision: '2026-07-31', vto: '2026-10-16', tnm: 2.05 },
-        { ticker: 'S30O6', tipo: 'LECAP',  precio: 128.814, emision: '2025-10-31', vto: '2026-10-30', tnm: 2.55 },
-        { ticker: 'S13N6', tipo: 'LECAP',  precio: 103.340, emision: '2026-06-30', vto: '2026-11-13', tnm: 2.10 },
-        { ticker: 'S30N6', tipo: 'LECAP',  precio: 120.980, emision: '2025-12-15', vto: '2026-11-30', tnm: 2.30 },
-        { ticker: 'T15E7', tipo: 'BONCAP', precio: 145.100, emision: '2025-01-31', vto: '2027-01-15', tnm: 2.05 },
-        { ticker: 'T30A7', tipo: 'BONCAP', precio: 131.540, emision: '2025-10-31', vto: '2027-04-30', tnm: 2.55 },
-        { ticker: 'T31Y7', tipo: 'BONCAP', precio: 124.100, emision: '2025-12-15', vto: '2027-05-31', tnm: 2.40 },
-        { ticker: 'T30J7', tipo: 'BONCAP', precio: 125.800, emision: '2026-01-16', vto: '2027-06-30', tnm: 2.58 }
+        { ticker: 'S31G6', tipo: 'LECAP',  precio: 100.000, emision: '2025-11-10', vto: '2026-08-31', tnm: 2.50 },
+        { ticker: 'S15S6', tipo: 'LECAP',  precio: 100.000, emision: '2026-05-29', vto: '2026-09-15', tnm: 1.99 },
+        { ticker: 'S30S6', tipo: 'LECAP',  precio: 100.000, emision: '2026-03-16', vto: '2026-09-30', tnm: 2.53 },
+        { ticker: 'S16O6', tipo: 'LECAP',  precio: 100.000, emision: '2026-07-31', vto: '2026-10-16', tnm: 2.05 },
+        { ticker: 'S30O6', tipo: 'LECAP',  precio: 100.000, emision: '2025-10-31', vto: '2026-10-30', tnm: 2.55 },
+        { ticker: 'S13N6', tipo: 'LECAP',  precio: 100.000, emision: '2026-06-30', vto: '2026-11-13', tnm: 2.10 },
+        { ticker: 'S30N6', tipo: 'LECAP',  precio: 100.000, emision: '2025-12-15', vto: '2026-11-30', tnm: 2.30 },
+        { ticker: 'T15E7', tipo: 'BONCAP', precio: 100.000, emision: '2025-01-31', vto: '2027-01-15', tnm: 2.05 },
+        { ticker: 'S29E7', tipo: 'LECAP',  precio: 100.000, emision: '2026-08-31', vto: '2027-01-29', tnm: 2.25 },
+        { ticker: 'T30A7', tipo: 'BONCAP', precio: 100.000, emision: '2025-10-31', vto: '2027-04-30', tnm: 2.55 },
+        { ticker: 'T31Y7', tipo: 'BONCAP', precio: 100.000, emision: '2025-12-15', vto: '2027-05-31', tnm: 2.40 },
+        { ticker: 'T30J7', tipo: 'BONCAP', precio: 100.000, emision: '2026-01-16', vto: '2027-06-30', tnm: 2.58 }
     ];
     // Guarda, por índice de título, un valor de "Precio + Gas." editado a mano (pisa el cálculo automático)
     const precioGasOverrides = {};
@@ -479,9 +547,16 @@
         const tbody = document.getElementById('tablaCuerpo');
         tbody.innerHTML = '';
 
+        datosCurva = [];
+        let fila = 0;
+
         titulosBase.forEach((t, idx) => {
             const emisionDate = new Date(t.emision + 'T00:00:00');
             const vto = new Date(t.vto + 'T00:00:00');
+
+            // Un título deja de listarse en cuanto llega su fecha de vencimiento
+            if (vto <= fechaLiqVal) return;
+
             const diffTime = vto - fechaLiqVal;
             const diasVto = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
             const meses = (dias360(fechaLiqVal, vto) / 30).toFixed(2);
@@ -507,8 +582,8 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${t.ticker}</td>
-                <td><input type="number" class="editable-input" value="${t.precio.toFixed(3)}" step="0.05" onchange="actualizarPrecio(${idx}, this.value)"></td>
-                <td><input type="number" class="editable-input${precioGasOverrides[idx] !== undefined ? ' overridden' : ''}" value="${precioMasGas.toFixed(3)}" step="0.05" onchange="actualizarPrecioMasGas(${idx}, this.value)" title="${precioGasOverrides[idx] !== undefined ? 'Valor editado a mano' : 'Calculado automáticamente'}"></td>
+                <td><input type="text" inputmode="decimal" class="editable-input" data-row="${fila}" data-col="precio" value="${t.precio.toFixed(2)}" onchange="actualizarPrecio(${idx}, this.value)"></td>
+                <td><input type="text" inputmode="decimal" class="editable-input${precioGasOverrides[idx] !== undefined ? ' overridden' : ''}" data-row="${fila}" data-col="gas" value="${precioMasGas.toFixed(2)}" onchange="actualizarPrecioMasGas(${idx}, this.value)" title="${precioGasOverrides[idx] !== undefined ? 'Valor editado a mano' : 'Calculado automáticamente'}"></td>
                 <td>${fmtFecha(fechaLiqInput)}</td>
                 <td>${fmtFecha(t.emision)}</td>
                 <td>${fmtFecha(t.vto)}</td>
@@ -523,24 +598,256 @@
                 <td>${t.tnm.toFixed(2)}%</td>
             `;
             tbody.appendChild(tr);
+            fila++;
+
+            datosCurva.push({
+                ticker: t.ticker,
+                tipo: t.tipo,
+                dias: diasVto,
+                tem: tem * 100,
+                tea: tea * 100,
+                tna: tna * 100
+            });
         });
+
+        renderGrafico();
+    }
+
+    // ===== GRÁFICO: CURVA DE TASA FIJA CON TENDENCIA LOGARÍTMICA =====
+
+    let datosCurva = [];
+
+    const ETIQUETA_METRICA = { tem: 'TEM', tea: 'TEA', tna: 'TNA' };
+
+    function numAR(v, dec = 2) {
+        return v.toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
+
+    // Ajuste por mínimos cuadrados de y = a + b·ln(x) (misma tendencia logarítmica de Excel)
+    function ajusteLogaritmico(puntos) {
+        const n = puntos.length;
+        if (n < 3) return null;
+        let sx = 0, sy = 0, sxx = 0, sxy = 0;
+        puntos.forEach(p => {
+            const lx = Math.log(p.x);
+            sx += lx; sy += p.y; sxx += lx * lx; sxy += lx * p.y;
+        });
+        const den = n * sxx - sx * sx;
+        if (!den) return null;
+        const b = (n * sxy - sx * sy) / den;
+        const a = (sy - b * sx) / n;
+        const prom = sy / n;
+        let ssRes = 0, ssTot = 0;
+        puntos.forEach(p => {
+            const pred = a + b * Math.log(p.x);
+            ssRes += Math.pow(p.y - pred, 2);
+            ssTot += Math.pow(p.y - prom, 2);
+        });
+        return { a, b, r2: ssTot ? 1 - ssRes / ssTot : 1 };
+    }
+
+    function pasoLindo(rango, objetivo) {
+        const crudo = rango / objetivo;
+        const mag = Math.pow(10, Math.floor(Math.log10(crudo)));
+        const norm = crudo / mag;
+        let paso;
+        if (norm <= 1) paso = 1;
+        else if (norm <= 2) paso = 2;
+        else if (norm <= 2.5) paso = 2.5;
+        else if (norm <= 5) paso = 5;
+        else paso = 10;
+        return paso * mag;
+    }
+
+    function renderGrafico() {
+        const svg = document.getElementById('curvaSvg');
+        const metrica = document.getElementById('metricaGrafico').value;
+        const W = 1160, H = 620;
+        const ML = 80, MR = 45, MT = 60, MB = 65;
+
+        const datos = datosCurva
+            .filter(d => d.dias > 0 && isFinite(d[metrica]))
+            .map(d => ({ ticker: d.ticker, tipo: d.tipo, x: d.dias, y: d[metrica] }))
+            .sort((a, b) => a.x - b.x);
+
+        const piezas = [`<rect x="0" y="0" width="${W}" height="${H}" fill="#3b3b3b"/>`];
+
+        if (!datos.length) {
+            piezas.push(`<text x="${W / 2}" y="${H / 2}" fill="#cbd5e1" font-family="Segoe UI, Arial, sans-serif" font-size="16" text-anchor="middle">No hay títulos vigentes para graficar</text>`);
+            svg.innerHTML = piezas.join('');
+            return;
+        }
+
+        // Escalas
+        const maxX = Math.max(...datos.map(d => d.x));
+        const pasoX = pasoLindo(maxX, 7);
+        const xMin = 0, xMax = Math.ceil(maxX / pasoX) * pasoX;
+
+        const ys = datos.map(d => d.y);
+        let vmin = Math.min(...ys), vmax = Math.max(...ys);
+        if (vmax === vmin) { vmin -= 0.05; vmax += 0.05; }
+        const colchon = (vmax - vmin) * 0.25;
+        const pasoY = pasoLindo((vmax - vmin) + 2 * colchon, 6);
+        const yMin = Math.floor((vmin - colchon) / pasoY) * pasoY;
+        const yMax = Math.ceil((vmax + colchon) / pasoY) * pasoY;
+
+        const px = v => ML + ((v - xMin) / (xMax - xMin)) * (W - ML - MR);
+        const py = v => MT + ((yMax - v) / (yMax - yMin)) * (H - MT - MB);
+
+        const FUENTE = 'Segoe UI, Tahoma, Arial, sans-serif';
+        const decY = pasoY < 0.1 ? 2 : (pasoY < 1 ? 2 : 1);
+
+        // Título
+        piezas.push(`<text x="${W / 2}" y="34" fill="#e8e8e8" font-family="${FUENTE}" font-size="21" font-weight="bold" text-anchor="middle">CURVA DE TASA FIJA (${ETIQUETA_METRICA[metrica]})</text>`);
+
+        // Grilla + ejes
+        for (let v = yMin; v <= yMax + 1e-9; v += pasoY) {
+            const y = py(v);
+            piezas.push(`<line x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}" stroke="#575757" stroke-width="1"/>`);
+            piezas.push(`<text x="${ML - 10}" y="${(y + 4).toFixed(1)}" fill="#d4d4d4" font-family="${FUENTE}" font-size="11" text-anchor="end">${numAR(v, decY)}%</text>`);
+        }
+        for (let v = xMin; v <= xMax + 1e-9; v += pasoX) {
+            const x = px(v);
+            piezas.push(`<line x1="${x.toFixed(1)}" y1="${MT}" x2="${x.toFixed(1)}" y2="${H - MB}" stroke="#575757" stroke-width="1"/>`);
+            piezas.push(`<text x="${x.toFixed(1)}" y="${H - MB + 20}" fill="#d4d4d4" font-family="${FUENTE}" font-size="11" text-anchor="middle">${v}</text>`);
+        }
+        piezas.push(`<line x1="${ML}" y1="${MT}" x2="${ML}" y2="${H - MB}" stroke="#8a8a8a" stroke-width="1"/>`);
+        piezas.push(`<line x1="${ML}" y1="${H - MB}" x2="${W - MR}" y2="${H - MB}" stroke="#8a8a8a" stroke-width="1"/>`);
+        piezas.push(`<text transform="translate(26 ${(MT + H - MB) / 2}) rotate(-90)" fill="#e0e0e0" font-family="${FUENTE}" font-size="13" text-anchor="middle">${ETIQUETA_METRICA[metrica]}</text>`);
+        piezas.push(`<text x="${(ML + W - MR) / 2}" y="${H - 18}" fill="#e0e0e0" font-family="${FUENTE}" font-size="13" text-anchor="middle">Días al Vto</text>`);
+
+        // Línea de tendencia logarítmica
+        const ajuste = ajusteLogaritmico(datos);
+        if (ajuste) {
+            const desde = Math.max(1, datos[0].x);
+            const hasta = datos[datos.length - 1].x;
+            const pasos = 80;
+            const puntos = [];
+            for (let i = 0; i <= pasos; i++) {
+                const xv = desde + (hasta - desde) * (i / pasos);
+                puntos.push(`${px(xv).toFixed(1)},${py(ajuste.a + ajuste.b * Math.log(xv)).toFixed(1)}`);
+            }
+            piezas.push(`<polyline points="${puntos.join(' ')}" fill="none" stroke="#9dc3e6" stroke-width="2.5" stroke-linecap="round"/>`);
+        }
+
+        // Puntos + etiquetas con acomodo automático para que no se pisen
+        const COLOR = { LECAP: '#9dc3e6', BONCAP: '#f2b268' };
+        const cajas = [];
+        const chocan = (a, b) => !(a.x2 < b.x1 || b.x2 < a.x1 || a.y2 < b.y1 || b.y2 < a.y1);
+
+        datos.forEach(d => {
+            const cx = px(d.x), cy = py(d.y);
+            const color = COLOR[d.tipo] || '#9dc3e6';
+            piezas.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4" fill="${color}"/>`);
+
+            const texto = `${d.ticker}; ${numAR(d.y, 2)}%`;
+            const ancho = texto.length * 6.3;
+            const alto = 13;
+            const opciones = [
+                { dx: 11, dy: 4, anchor: 'start' },
+                { dx: 11, dy: -9, anchor: 'start' },
+                { dx: 11, dy: 17, anchor: 'start' },
+                { dx: -11, dy: 4, anchor: 'end' },
+                { dx: -11, dy: -9, anchor: 'end' },
+                { dx: -11, dy: 17, anchor: 'end' },
+                { dx: 0, dy: -14, anchor: 'middle' },
+                { dx: 0, dy: 22, anchor: 'middle' }
+            ];
+
+            let elegida = null;
+            for (const op of opciones) {
+                const tx = cx + op.dx, ty = cy + op.dy;
+                const x1 = op.anchor === 'start' ? tx : (op.anchor === 'end' ? tx - ancho : tx - ancho / 2);
+                const caja = { x1, x2: x1 + ancho, y1: ty - alto, y2: ty + 4 };
+                if (caja.x1 < ML + 2 || caja.x2 > W - MR - 2 || caja.y1 < MT || caja.y2 > H - MB) continue;
+                if (cajas.some(c => chocan(c, caja))) continue;
+                elegida = { tx, ty, anchor: op.anchor, caja };
+                break;
+            }
+            if (!elegida) {
+                const tx = cx + 11, ty = cy + 4;
+                elegida = { tx, ty, anchor: 'start', caja: { x1: tx, x2: tx + ancho, y1: ty - alto, y2: ty + 4 } };
+            }
+            cajas.push(elegida.caja);
+            piezas.push(`<text x="${elegida.tx.toFixed(1)}" y="${elegida.ty.toFixed(1)}" fill="${color}" font-family="${FUENTE}" font-size="11" font-weight="bold" text-anchor="${elegida.anchor}">${texto}</text>`);
+        });
+
+        // Referencias
+        const leyenda = [['LECAP', COLOR.LECAP], ['BONCAP', COLOR.BONCAP]];
+        leyenda.forEach((l, i) => {
+            const lx = W - MR - 150 + i * 80;
+            piezas.push(`<circle cx="${lx}" cy="${MT - 22}" r="4" fill="${l[1]}"/>`);
+            piezas.push(`<text x="${lx + 9}" y="${MT - 18}" fill="#d4d4d4" font-family="${FUENTE}" font-size="11">${l[0]}</text>`);
+        });
+
+        svg.innerHTML = piezas.join('');
+    }
+
+    function descargarGrafico() {
+        const svg = document.getElementById('curvaSvg');
+        const xml = new XMLSerializer().serializeToString(svg);
+        const url = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+        const img = new Image();
+        img.onload = () => {
+            const escala = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = 1160 * escala;
+            canvas.height = 620 * escala;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const a = document.createElement('a');
+            a.download = `curva-tasa-fija-${document.getElementById('fechaLiq').value}.png`;
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        };
+        img.onerror = () => alert('No se pudo generar la imagen en este navegador.');
+        img.src = url;
+    }
+
+    // Acepta tanto coma como punto como separador decimal. Si queda vacío o inválido, usa 100.00 por defecto.
+    function parsearPrecio(val) {
+        if (val === null || val === undefined) return 100;
+        const limpio = String(val).trim().replace(',', '.');
+        if (limpio === '') return 100;
+        const n = parseFloat(limpio);
+        return isNaN(n) ? 100 : n;
     }
 
     function actualizarPrecio(idx, val) {
-        titulosBase[idx].precio = parseFloat(val) || 0;
+        titulosBase[idx].precio = parsearPrecio(val);
         delete precioGasOverrides[idx]; // al editar el precio base, vuelve a calcularse Precio+Gas automático
         renderTabla();
     }
 
     function actualizarPrecioMasGas(idx, val) {
-        precioGasOverrides[idx] = parseFloat(val) || 0;
+        precioGasOverrides[idx] = parsearPrecio(val);
         renderTabla();
     }
+
+    // Al presionar Enter en un precio, confirma el valor y pasa el foco a la misma columna de la fila de abajo
+    document.getElementById('tablaCuerpo').addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        const input = e.target;
+        if (!input.classList || !input.classList.contains('editable-input')) return;
+        e.preventDefault();
+        const fila = parseInt(input.dataset.row, 10);
+        const col = input.dataset.col;
+        input.blur(); // confirma el valor (dispara onchange y redibuja la tabla)
+        requestAnimationFrame(() => {
+            const siguiente = document.querySelector(`#tablaCuerpo input[data-col="${col}"][data-row="${fila + 1}"]`);
+            if (siguiente) {
+                siguiente.focus();
+                siguiente.select();
+            }
+        });
+    });
 
     // Listeners
     ['fechaLiq', 'mepVal', 'arancelLecap', 'arancelBoncap', 'derechosLecap', 'derechosBoncap'].forEach(id => {
         document.getElementById(id).addEventListener('input', renderTabla);
     });
+
+    document.getElementById('metricaGrafico').addEventListener('change', renderGrafico);
 
     // Inicio
     async function inicializar() {
